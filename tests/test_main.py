@@ -1,22 +1,28 @@
-import flet.testing as ftt
+import pytest
+from unittest.mock import MagicMock
+import flet as ft
+from src.main import main
 
 
-async def test_increment(flet_app: ftt.FletTestApp):
-    """Counter sample: tap the FAB and assert the counter goes 0 -> 1.
+@pytest.mark.asyncio
+async def test_increment():
+    # Oñembosako'i peteĩ mock sesión rehegua
+    mock_session = MagicMock()
+    page = ft.Page(mock_session)
+    
+    # Oñemboguatata main función
+    main(page)
 
-    The `flet_app` fixture is provided automatically by the flet pytest plugin.
-    Run with `flet test` (or `uv run pytest`) from the project directory.
-    """
-    tester = flet_app.tester
+    # Ojehecha oĩpa nyryty ha ipyenda
+    assert len(page.controls) > 0
 
-    await tester.pump_and_settle()
+    # Ojeheka mba'eichapa oĩ pe text inicial ("0")
+    safe_area = page.controls[0]
+    counter_text = safe_area.content.content
+    assert counter_text.value == "0"
 
-    # Initial state
-    assert (await tester.find_by_text("0")).count == 1
+    # Oñeha'ã oñembotapykue pe botón
+    page.floating_action_button.on_click(MagicMock())
 
-    # Tap the increment button (found by its key) and let the UI settle
-    await tester.tap(await tester.find_by_key("increment"))
-    await tester.pump_and_settle()
-
-    # New state
-    assert (await tester.find_by_text("1")).count == 1
+    # Ojehecha oñemoambuepa ("1")
+    assert counter_text.value == "1"
